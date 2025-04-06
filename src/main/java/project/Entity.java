@@ -10,8 +10,9 @@ public class Entity {
         this.row = row;
         this.col = col;
     }
+    public Entity() {} // Empty constructor for Jackson
 
-    public boolean check(){
+    public boolean isAlive(){
         return this.alive;
     }
 
@@ -32,5 +33,13 @@ public class Entity {
     }
     public int getRow() {
         return row;
+    }
+    @Override
+    public String toString() {
+        if (alive) {
+            return "Alive";
+        }
+        return "-";
+         
     }
 }

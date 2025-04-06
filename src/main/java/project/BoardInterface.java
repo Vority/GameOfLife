@@ -14,16 +14,17 @@ public interface BoardInterface {
     public ArrayList<ArrayList<Entity>> nextIteration();
 
     /**
-     * gets the (up to) 8 neighbors of a spesific entity and adds them to a list. Then checks if at least 3 of these neighbors are alive. If so, return true. Else return false.
+     * gets the (up to) 8 neighbors of a spesific entity and adds them to a list. Then checks if the amount of living neighbors coheres to the rules: 
+     * #1: living cells with less than two living neighbors die.
+     * #2: living cells with more than three living neighbors die.
+     * #3: dead cells with excactly three living neighbors live.
      * 
-     * @param rol
-     * The second index in the matrix
-     * @param row
-     * The first index in the matrix
+     * @param entity
+     * The entity in question
      * @return
      * true or false
      */
-    public boolean checkNeighbors(int col, int row);
+    public boolean survival(Entity entity);
 
     /**
      * Takes an uploaded board and changes the current board to this new one.
@@ -50,5 +51,7 @@ public interface BoardInterface {
      */
     public void clear();
 
+
+    // MÅ FÅ INN RESTEN!!!
 
 }

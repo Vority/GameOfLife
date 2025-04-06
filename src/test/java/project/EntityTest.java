@@ -15,19 +15,19 @@ public class EntityTest {
     @Test
     public void testConstructor() {
         Entity test = new Entity(0, 0);
-        assertEquals(false, test.check());
+        assertEquals(false, test.isAlive());
     }
 
     @Test
     public void testLiveAndDie () {
         Entity test = new Entity(0, 0);
         test.live();
-        assertEquals(true, test.check());
+        assertEquals(true, test.isAlive());
         test.live();
-        assertEquals(true, test.check());
+        assertEquals(true, test.isAlive());
         test.die();
-        assertEquals(false, test.check());
+        assertEquals(false, test.isAlive());
         test.die();
-        assertEquals(false, test.check());
+        assertEquals(false, test.isAlive());
     }
 }
