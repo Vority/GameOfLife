@@ -16,7 +16,7 @@ public class GOLApp extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {;
         primaryStage.setTitle("Game of Life");
-        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/project/newApp.fxml"))));
+        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/project/GOL.fxml"))));
         primaryStage.show();
     }
 }

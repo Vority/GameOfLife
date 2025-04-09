@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Filehandler {
     private Board board;
-    protected File file; // I think it has to be protected due to the unit testing
+    protected File file; // Its protected because of the unit testing (we need to change the file there soo..)
 
     public Filehandler(Board board){
         this.board = board;
@@ -20,45 +20,51 @@ public class Filehandler {
         }
     }
 
+    // Method for saving the current grid of the board, with the argument name (identifier) in a Saves object.
     public void save(String name) throws IOException {
         // Checks if the name is null or empty. Throws exception if so. The controller will pick up on that and sends and errorText for the user.        
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("The name parameter cannot be null or empty.");
         }
 
+        // Unpacking the saves.json file into a list of Saves objects.
         List<Saves> savesList = loadSaves();
     
+        // Checks if the name argument already is the name of some other save. 
         for (Saves saves : savesList) {
             if (saves.getName().equalsIgnoreCase(name)) {
                 throw new IllegalArgumentException("The name is already used.");
             }
         }
-        
+        // Making a new Saves object. Name is the name-argument and the grid will always be the current grid of the board.
         Saves save = new Saves(name.toUpperCase(), board.getGrid());
-        savesList.add(save);
-        writeSaves(savesList);
-        
+        savesList.add(save); // if the JSON file was empty or non-existent -> savesList was an empty list. 
+        writeSaves(savesList); // write to file
     }
 
+    // Running through every Saves object in the json file, and uploads the one with the same name as the argument name
     public boolean upload(String name){
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("The name parameter cannot be null or empty!");
         }
+        // Unpacking the saves.json file into a list of Saves objects.
         List<Saves> savesList = loadSaves();
 
+        // Just a little user thing here, to see what saves we have found. Isnt visible to a user. Just terminal stuff..
         System.out.println("Saves found: ");
         for (Saves save : savesList) {
             System.out.println(" - " + save.getName());
 }
-        for (Saves save : savesList) { // If we find the name-argument in the saves-file we upload the corresponding grid, but only if the size of the grid is 40x40. 
+        // Going through every save in the list
+        for (Saves save : savesList) { 
+            // If we find the name-argument in the saves-file we upload the corresponding grid, but only if the size of the grid is 40x40. 
             if (save.getName().equals(name.toUpperCase()) && save.getGrid().size() == 40 && save.getGrid().get(0).size() == 40) {
                 board.uploadBoard(save.getGrid()); 
-                return true;
+                return true; // returns true if we have found the save
             }
         }
         System.out.println("No save matches the search name " + name.toUpperCase() + ".");
-        
-        return false;
+        return false; // returns false if we have not found the save
     }
 
     private void writeSaves(List<Saves> savesList) throws IOException {

@@ -2,7 +2,6 @@ package project;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -15,10 +14,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class GOLController { // A little thick because of the need to draw the UI continuously. All functionality for the model resides in Board.java
+public class GOLController { // A little thick because of the need to draw the UI continuously. All functionality for the model resides in Board.java though. Who would have thought that a dynamic game would need some lines even in the controller.
     private Board board;
     
-
     @FXML private GridPane gridPane;
     @FXML private Text iterationsText;
     @FXML private Text livingCellsText;
@@ -27,8 +25,6 @@ public class GOLController { // A little thick because of the need to draw the U
     @FXML private Button stopButton;
     @FXML private Button saveButton;
     @FXML private Button uploadButton;
-
-    
     @FXML private AnchorPane savePane;
     @FXML private AnchorPane loadPane;
     @FXML private Button toMain;
@@ -48,48 +44,48 @@ public class GOLController { // A little thick because of the need to draw the U
         System.out.println("GOLController initialized successfully.");
     }
 
+    // Methods that are called when the right button is pressed
     @FXML
     private void handlePlay() {
         if (board != null) { board.startGameLoop();}
     }
-
     @FXML
     private void handleStop() {
         board.stopGameLoop();
     }
-
     @FXML
     private void handleClear() {
         board.clear();
         drawBoard();
     }
 
-    public void drawBoard() { // Method for drawing the board iteratively. Resembles the nextIteration method.
-        gridPane.getChildren().clear(); // Clears the gridpane
+    // The method for drawing the grid of the board as squares in a gridPane. Green for alive, black for dead.
+    public void drawBoard() { // draws iteratively. Resembles nextIteration()
+        gridPane.getChildren().clear(); // Clears the gridPane
         ArrayList<ArrayList<Entity>> grid = board.getGrid(); 
 
-        for (int row = 0; row < grid.size(); row++) { // for every entity in board's grid-matrix, make a rectangle to -
-            for (int col = 0; col < grid.get(row).size(); col++) { // be positioned at the same spot, with colors resembling the entity's state
-                Entity entity = grid.get(row).get(col);
+        for (int row = 0; row < grid.size(); row++) { // Making a rectangle for every entity in board's grid-matrix
+            for (int col = 0; col < grid.get(row).size(); col++) { // Color is based on the corresponding entity 
+                Entity entity = grid.get(row).get(col); 
                 Rectangle cell = new Rectangle(15, 15, entity.isAlive() ? Color.GREEN : Color.BLACK);
 
+                // If you click on a given rectangle object, editEntity will be called to that entity
                 int finalRow = row;
                 int finalCol = col;
-                cell.setOnMouseClicked(e -> { // if you click on a given rectangle object, editEntity will be called (change the entity's state)
+                cell.setOnMouseClicked(e -> { 
                     board.editEntity(finalCol, finalRow);
-                    cell.setFill(entity.isAlive() ? Color.GREEN : Color.BLACK); // then we just refill the rectangle
+                    cell.setFill(entity.isAlive() ? Color.GREEN : Color.BLACK); // We refill the rectangle with the new color
                     livingCellsText.setText("Living Cells: " + board.getLiving());
                 });
-
+                // Adding the colored rectangles one by one
                 gridPane.add(cell, col, row);
             }
-        }
+        } // NB the info-text
         iterationsText.setText("Iterations: " + board.getIterations());
         livingCellsText.setText("Living Cells: " + board.getLiving());
     }
 
-
-    // Filehandling part
+    // UI stuff to change pages (anchor panes stacking upon each other)
     @FXML
     private void toMain() {
         savePane.setDisable(true);
@@ -113,9 +109,9 @@ public class GOLController { // A little thick because of the need to draw the U
         loadPane.setVisible(true);
         board.stopGameLoop();
     }
-    @FXML
+    @FXML  // The text in the UI textfield has the argument for the Filehandler save method. 
     private void save() throws IOException{
-        try { // Try-catch feilhåndtering for upload metoden til Filehandler klassen (throws IllegalArgumentException hvis name er null
+        try { // The save function in the FIlehandler class throws exceptions if the state isnt right. We want to catch these errors and give the feedback with UI.
             board.getFiles().save(saveText.getText());
             toMain();
         } catch (IllegalArgumentException e) { // We check which exception we have (two possibilities) to give better feedback
@@ -127,24 +123,21 @@ public class GOLController { // A little thick because of the need to draw the U
             }
         }
     }
-    @FXML
+    @FXML // The text in the UI textfield has the argument for the Filehandler upload method. 
     private void load(){
-        try { // Try-catch feilhåndtering for upload metoden til Filehandler klassen (throws IllegalArgumentException hvis name er null)
+        try { // The upload function in the FIlehandler class throws exceptions if the state isnt right. We want to catch this and give the feedback with UI. Also if foundSave returns false, nothing was wrong with the parameter but we didnt find a match.
             boolean foundSave = board.getFiles().upload(loadText.getText());
-            if (!foundSave) {
-                showTemporaryError("No save matching the name.");
-            }
+            if (!foundSave) {showTemporaryError("No save matching the name."); }
             else if (foundSave) {toMain();}
-            
         } catch (IllegalArgumentException e) {
             showTemporaryError("Name cannot be null or empty.");
         }
     }
 
+    // method to create a temporary error message (purely UI so it's okay?)
     private void showTemporaryError(String message) {
         errorText.setText(message);
         errorText.setVisible(true);
-
         // To make the errorText visible for 2s we create a new timeline with 1 cycle and 2s duration between cycles that sets it invisible.
         Timeline timeline = new Timeline(new KeyFrame(
             Duration.seconds(2),

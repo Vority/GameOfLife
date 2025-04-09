@@ -4,14 +4,13 @@ import java.util.ArrayList;
 
 public interface BoardInterface {
     /**
-     * Updates the board according to the rules of the Game of Life.
+     * Updates the grid of the board board according to the rules of the Game of Life. <p>
      *  
      * More spesifically it checks the (up to) eight neighbours of every entity on the board to determine if the status of the entity should change in the next iteration of the game. 
      *  
-     * @return 
-     * The new version of the board.
+     *
       */
-    public ArrayList<ArrayList<Entity>> nextIteration();
+    public void nextIteration(); 
 
     /**
      * gets the (up to) 8 neighbors of a spesific entity and adds them to a list. Then checks if the amount of living neighbors coheres to the rules:
