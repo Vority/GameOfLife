@@ -49,18 +49,16 @@
          <children>
             <Button fx:id="saveTwo" layoutX="371.0" layoutY="339.0" mnemonicParsing="false" onAction="#save" prefHeight="34.0" prefWidth="107.0" text="Save" />
             <Button fx:id="toMain" layoutX="241.0" layoutY="339.0" mnemonicParsing="false" onAction="#toMain" prefHeight="34.0" prefWidth="107.0" text="Cancel" />
-            <TextField fx:id="saveText" layoutX="241.0" layoutY="295.0" onAction="#toSavePane" prefHeight="34.0" prefWidth="237.0" promptText="Choose save name" />
-            <Text layoutX="241.0" layoutY="291.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name / ID" wrappingWidth="62.13671875" />
+            <TextField fx:id="saveText" layoutX="241.0" layoutY="295.0" onAction="#toSavePane" prefHeight="34.0" prefWidth="237.0" promptText="Choose save name (Can't be null)"/>
          </children>
       </AnchorPane>
       <AnchorPane fx:id="loadPane" disable="true" layoutX="50.0" layoutY="70.0" prefHeight="678.0" prefWidth="710.0" visible="false">
          <children>
             <Button fx:id="loadTwo" layoutX="371.0" layoutY="339.0" mnemonicParsing="false" onAction="#load" prefHeight="34.0" prefWidth="107.0" text="Load" />
             <Button fx:id="toMain2" layoutX="241.0" layoutY="339.0" mnemonicParsing="false" onAction="#toMain" prefHeight="34.0" prefWidth="107.0" text="Cancel" />
-            <TextField fx:id="loadText" layoutX="241.0" layoutY="295.0" prefHeight="34.0" prefWidth="237.0" promptText="Choose save name" />
-            <Text layoutX="241.0" layoutY="291.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Name / ID" wrappingWidth="62.13671875" />
+            <TextField fx:id="loadText" layoutX="241.0" layoutY="295.0" prefHeight="34.0" prefWidth="237.0" promptText="Choose save name (Can't be null)" />
          </children>
       </AnchorPane>
-      
+      <Text fx:id="errorText" text="No save found with that name!" fill="red" layoutX="330" layoutY="360" visible="false" />
 </children>
 </AnchorPane>

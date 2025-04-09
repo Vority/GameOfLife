@@ -6,21 +6,22 @@ import org.junit.jupiter.api.Test;
 
 public class EntityTest {
     // Hvorfor gjør ikke denne noe?
+    Entity test;
     @BeforeEach
-    public void setup() {
-        Entity test = new Entity(0, 0);
+    void setup() {
+        test = new Entity(0, 0);
     }
     
 
     @Test
-    public void testConstructor() {
-        Entity test = new Entity(0, 0);
+    void testConstructor() {
+        // Just testing that the entity is dead upon creation (word?)
         assertEquals(false, test.isAlive());
     }
 
     @Test
-    public void testLiveAndDie () {
-        Entity test = new Entity(0, 0);
+    void testLiveAndLetDie () {
+        // Testing all three methods to change the alive-state of an Entity
         test.live();
         assertEquals(true, test.isAlive());
         test.live();
@@ -28,6 +29,10 @@ public class EntityTest {
         test.die();
         assertEquals(false, test.isAlive());
         test.die();
+        assertEquals(false, test.isAlive());
+        test.change();
+        assertEquals(true, test.isAlive());
+        test.change();
         assertEquals(false, test.isAlive());
     }
 }

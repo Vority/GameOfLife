@@ -1,7 +1,6 @@
 package project;
 
 import java.util.ArrayList;
-import java.io.IOException;
 import java.lang.Math;
 
 import javafx.animation.Animation;
@@ -20,7 +19,7 @@ public class Board implements BoardInterface {
     private Filehandler files;
 
     // initialize the board object
-    public Board(GOLController controller) throws IOException { 
+    public Board(GOLController controller) { 
         System.out.println("Initializing board..!");
         this.controller = controller;
         this.iterations = 0;
@@ -69,8 +68,6 @@ public class Board implements BoardInterface {
         return newGrid;
     }
 
-
-
     @Override
     public boolean survival(Entity entity) {
         int livingNeighbors = 0;
@@ -117,11 +114,13 @@ public class Board implements BoardInterface {
         this.iterations = 0;
         stopGameLoop();
     }
+    @Override
     public void startGameLoop() {
         if (gameLoop.getStatus() != Animation.Status.RUNNING) {
             gameLoop.play();
         }
     }
+    @Override
     public void stopGameLoop() {
         try {
             gameLoop.stop();
@@ -129,15 +128,19 @@ public class Board implements BoardInterface {
             System.err.println("No current gameloop");
         }
     }
+    @Override
     public int getLiving() {
         return living;
     }
+    @Override
     public int getIterations() {
         return iterations;
     }
+    @Override
     public ArrayList<ArrayList<Entity>> getGrid() {
         return grid;
     }
+    @Override
     public Filehandler getFiles() {
         return files;
     }

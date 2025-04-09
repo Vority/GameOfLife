@@ -14,11 +14,12 @@ public interface BoardInterface {
     public ArrayList<ArrayList<Entity>> nextIteration();
 
     /**
-     * gets the (up to) 8 neighbors of a spesific entity and adds them to a list. Then checks if the amount of living neighbors coheres to the rules: 
-     * #1: living cells with less than two living neighbors die.
-     * #2: living cells with more than three living neighbors die.
-     * #3: dead cells with excactly three living neighbors live.
-     * 
+     * gets the (up to) 8 neighbors of a spesific entity and adds them to a list. Then checks if the amount of living neighbors coheres to the rules:
+     * <ol>
+     *    <li> Living cells with less than two living neighbors die. </li>
+     *    <li> Living cells with more than three living neighbors die. </li>
+     *    <li> Dead cells with excactly three living neighbors live. </li>
+     * </ol>
      * @param entity
      * The entity in question
      * @return
@@ -51,7 +52,39 @@ public interface BoardInterface {
      */
     public void clear();
 
+    /**
+     * If the Timeline object gameLoop isn't currently running : start running the loop.
+     * <p> 
+     * In the constructor of the Board object, its Timeline object is specified to call nextIteration every 100ms. 
+     */
+    public void startGameLoop();
 
-    // MÅ FÅ INN RESTEN!!!
+    /**
+     * Try to stop the gameloop. <p>
+     * In the constructor of the Board object, its Timeline object is specified to call nextIteration every 100ms. 
+     * @throws
+     * throws and exception E if there is no running gameLoop. 
+     */
+    public void stopGameLoop();
 
+    /**
+     * Getter for the (int) living state of the Board object
+     */
+    public int getLiving();
+
+    /**
+     * Getter for the (int) iterations state of the Board object
+     */
+    public int getIterations();
+
+    /**
+     * Getter for the grid state of the Board object
+     */
+    public ArrayList<ArrayList<Entity>> getGrid();
+
+    /**
+     * Getter for the (Filehandler) files state of the Board object
+     * @see {@code Filehandler.java}
+     */
+    public Filehandler getFiles();
 }

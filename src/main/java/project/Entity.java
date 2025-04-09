@@ -37,9 +37,9 @@ public class Entity {
     @Override
     public String toString() {
         if (alive) {
-            return "Alive";
+            return "1";
         }
-        return "-";
+        return "0";
          
     }
 }

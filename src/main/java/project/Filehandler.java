@@ -1,82 +1,128 @@
 package project;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
- 
-
-
 public class Filehandler {
-    private ObjectMapper objectMapper = new ObjectMapper();
     private Board board;
-    private File file;
-    //private FileWriter file = new FileWriter(null);
+    protected File file; // I think it has to be protected due to the unit testing
 
-    public Filehandler(Board board) throws IOException {
+    public Filehandler(Board board){
         this.board = board;
         this.file = new File("saves.json");
+        try { // If the file doesnt exist, try to create a new one. 
+            if (!file.exists()) { 
+                file.createNewFile();
+            }
+        } catch (IOException e) { // If we get an IOException we just print it out. Shouldnt really ever happen.
+            System.err.println("Error creating file: " + e.getMessage());
+        }
     }
 
+    public void save(String name) throws IOException {
+        // Checks if the name is null or empty. Throws exception if so. The controller will pick up on that and sends and errorText for the user.        
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("The name parameter cannot be null or empty.");
+        }
 
-    public void save(String name) throws StreamWriteException, DatabindException, IOException {  // TA INN BOARD ELLER GRID? ØNSKER HELST GRID.
-        // feilhåndtering på name (identifikasjon på stringen)
+        List<Saves> savesList = loadSaves();
+    
+        for (Saves saves : savesList) {
+            if (saves.getName().equalsIgnoreCase(name)) {
+                throw new IllegalArgumentException("The name is already used.");
+            }
+        }
         
-        Saves save = new Saves(name, board.getGrid());
-        List<Saves> savesList = new ArrayList<>();
-
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("The name parameter cannot be null or empty!");
-        }
-       
-        try { // Checks if the file at all exists. We could do this with if file.exists() but we do it this way here instead because we needed to implements error-handling
-            savesList = objectMapper.readValue(file, new TypeReference<ArrayList<Saves>>() {}) ;
-            for (Saves oldSaves : savesList) {
-                if (oldSaves.getName().equals(name)) { // Sjekker om navnet til den nye saven allerede er i bruk
-                    throw new IllegalArgumentException("The name is already used!");
-                }
-            }
-            savesList.add(save);    
-        } catch (Exception e) {
-            System.err.println("Couldnt read a previous list");
-            e.printStackTrace();
-            savesList.add(save);
-        }
-        objectMapper.writeValue(file, savesList);
+        Saves save = new Saves(name.toUpperCase(), board.getGrid());
+        savesList.add(save);
+        writeSaves(savesList);
+        
     }
 
-    public void upload(String name){
-        List<Saves> savesList = new ArrayList<>();
-
+    public boolean upload(String name){
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("The name parameter cannot be null or empty!");
         }
+        List<Saves> savesList = loadSaves();
 
-        try { // Checks if the file at all exists. We could do this with if file.exists() but we do it this way here instead because we needed to implements error-handling
-            savesList = objectMapper.readValue(file, new TypeReference<ArrayList<Saves>>() {});  
-        } catch (Exception e) {
-            System.err.println("Couldnt find Saves objects in the file.");
+        System.out.println("Saves found: ");
+        for (Saves save : savesList) {
+            System.out.println(" - " + save.getName());
+}
+        for (Saves save : savesList) { // If we find the name-argument in the saves-file we upload the corresponding grid, but only if the size of the grid is 40x40. 
+            if (save.getName().equals(name.toUpperCase()) && save.getGrid().size() == 40 && save.getGrid().get(0).size() == 40) {
+                board.uploadBoard(save.getGrid()); 
+                return true;
+            }
+        }
+        System.out.println("No save matches the search name " + name.toUpperCase() + ".");
+        
+        return false;
+    }
+
+    private void writeSaves(List<Saves> savesList) throws IOException {
+        FileWriter writer = new FileWriter(file);
+        // Begins the list of the saves objects
+        writer.write("[\n");
+
+        // For every Saves object in the savesList
+        for (int i = 0; i < savesList.size(); i++) {
+            Saves s = savesList.get(i);
+            // Write the saves object to JSON in proper JSON format (toJSON())
+            writer.write(s.toJSON()); 
+            // if it is not the final element in the list, add a comma to seperate the objects in the JSON file.
+            if (i < savesList.size() - 1) {
+                writer.write(",");
+            } // new line
+            writer.write("\n");
+        } // end the JSON array with a "]"
+        writer.write("]");
+        writer.close();
+    }
+
+    private List<Saves> loadSaves() {
+        List<Saves> savesList = new ArrayList<>();
+
+        // File should exist considering we make it in the constructor if it doesnt already exists, but just in case..
+        if (!file.exists()) return savesList;
+
+        // try with the FileReader reader
+        try (FileReader reader = new FileReader(file);){
+            // First we take the info in the file and append it to a StringBuilder. (get the previous saves)
+            StringBuilder JSON = new StringBuilder();
+            int ch; // a character that we reconstruct to a char object
+
+            // Reading each character in the file and appending it to the StringBuilder, and putting it in a contentstring      
+            while ((ch = reader.read()) != -1) {JSON.append((char) ch);}
+            String content = JSON.toString().trim();
+
+            // If the file is empty or the array is empty in there, just return an empty list to the save and load methods.
+            if (content.length() < 5) return savesList;
+
+            // Removing the outer [ ]
+            content = content.substring(1, content.length() - 1);
+            // Splitting the different objects of the content string into different strings in a list (String[])
+            String[] saves = content.split("(?<=\\})\\s*,\\s*\\{"); // wierd as fuck split to account for corrution, newline, etc..
+
+            // Goes through every Saves object from the content
+            for (String s : saves) {
+                // Fixing the damage from the split above (adding {} to the object)
+                if (!s.startsWith("{")) s = "{" + s;
+                if (!s.endsWith("}")) s = s + "}";
+                // parsing the string into a Saves object using the fromJSON method
+                Saves save = Saves.fromJSON(s);
+                savesList.add(save);
+            }
+        } catch (IOException e) {
+            System.err.println("Error with reading the saves file.");
             e.printStackTrace();
         }
+        return savesList;
+    }
 
-        if (!savesList.isEmpty()) {
-            System.out.println("Saves found: ");
-            for (Saves s : savesList) {
-                System.out.println(" - " + s.getName());
-}
-            for (Saves save : savesList) {
-                if (save.getName().equals(name)) {
-                    board.uploadBoard(save.getGrid()); 
-                    return;
-                }
-            }
-            System.out.println("No save matches the search name " + name + ".");
-        }
+    public File getFile() {
+        return file;
     }
 
     public static class Saves {
@@ -88,8 +134,61 @@ public class Filehandler {
             this.grid = grid;
         }
 
-        // Jackson biblioteket trenger en tom konstruktør for å lese JSON filen
-        public Saves(){}
+        public String toJSON() {
+            StringBuilder sb = new StringBuilder();
+            // Writing the name and the start of the grid of the Saves object using the StringBuilder object
+            sb.append("{\"name\":\"").append(name).append("\",\"grid\":[");
+        
+            // Writing the rows of the grid using sb
+            for (int i = 0; i < grid.size(); i++) {
+                sb.append("[");
+                for (int j = 0; j < grid.get(i).size(); j++) {
+                    sb.append(grid.get(i).get(j).toString());  // Using the toString of the entity to make it readable
+                    if (j < grid.get(i).size() - 1) sb.append(",");
+                }
+                sb.append("]");
+                // If its not the final iteration of the for loop, we add a comma as a seperation betheen the values. ()
+                if (i < grid.size() - 1) sb.append(",");
+            }
+            sb.append("]}");
+            return sb.toString();
+        }
+        public static Saves fromJSON(String saveAsString) {
+            // Getting the name from the JSON string
+            String name = saveAsString.split("\"name\":\"")[1].split("\"")[0];
+
+            // Getting the grid from the JSON string
+            String gridPart = saveAsString.split("\"grid\":\\[")[1];
+            gridPart = gridPart.substring(0, gridPart.lastIndexOf("]"));
+
+            // Splitting the grid into rows
+            String[] rows = gridPart.split("\\],\\[");
+
+            // Making an empty grid 2D array that will hold the actual entities that the saved grid represents. 
+            ArrayList<ArrayList<Entity>> grid = new ArrayList<>();
+
+            int rowNumber = 0;
+            for (String row : rows) {
+                int colNumber = 0;
+                // We are taking all the 0 and 1 values (dead or alive) in the row and simplifying it to just a big string of 0's and 1's representing the entities.
+                row = row.replace("[", "").replace("]", "").replace("\"", "");
+                String[] values = row.split(",");
+
+                // Create a new row in the grid
+                ArrayList<Entity> gridRow = new ArrayList<>();
+                for (String v : values) {
+                    // Create entities based on the value ("1" or "0")
+                    Entity entity = new Entity(rowNumber, colNumber);
+                    if ("1".equals(v)) {entity.live();} // Set the entity as alive. If not, is is dead.
+                    gridRow.add(entity);
+                    colNumber++;
+                }
+                // Add the row to the grid
+                grid.add(gridRow);
+                rowNumber++;
+            }
+            return new Saves(name, grid);
+        }
 
         public String getName() {
             return name;

@@ -3,9 +3,8 @@ package project;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
-
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -14,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class GOLController { // A little thick because of the need to draw the UI continuously. All functionality for the model resides in Board.java
     private Board board;
@@ -37,6 +37,7 @@ public class GOLController { // A little thick because of the need to draw the U
     @FXML private Button loadTwo;
     @FXML private TextField saveText;
     @FXML private TextField loadText;
+    @FXML private Text errorText;
   
     public void initialize() throws IOException { // Basicly the constructor. Initializing the board object in order to bind the app to the board methods
         System.out.println("Initializing GOLController...");
@@ -113,16 +114,44 @@ public class GOLController { // A little thick because of the need to draw the U
         board.stopGameLoop();
     }
     @FXML
-    private void save() throws StreamWriteException, DatabindException, IOException{
-        board.getFiles().save(saveText.getText());
-        toMain();
+    private void save() throws IOException{
+        try { // Try-catch feilhåndtering for upload metoden til Filehandler klassen (throws IllegalArgumentException hvis name er null
+            board.getFiles().save(saveText.getText());
+            toMain();
+        } catch (IllegalArgumentException e) { // We check which exception we have (two possibilities) to give better feedback
+            if (e.getMessage().equals("The name parameter cannot be null or empty.")) {
+                showTemporaryError("Name cannot be null or empty.");
+            }
+            else {
+                showTemporaryError("Name is already used");
+            }
+        }
     }
     @FXML
     private void load(){
-        board.getFiles().upload(loadText.getText());
-        toMain();
+        try { // Try-catch feilhåndtering for upload metoden til Filehandler klassen (throws IllegalArgumentException hvis name er null)
+            boolean foundSave = board.getFiles().upload(loadText.getText());
+            if (!foundSave) {
+                showTemporaryError("No save matching the name.");
+            }
+            else if (foundSave) {toMain();}
+            
+        } catch (IllegalArgumentException e) {
+            showTemporaryError("Name cannot be null or empty.");
+        }
     }
 
+    private void showTemporaryError(String message) {
+        errorText.setText(message);
+        errorText.setVisible(true);
 
+        // To make the errorText visible for 2s we create a new timeline with 1 cycle and 2s duration between cycles that sets it invisible.
+        Timeline timeline = new Timeline(new KeyFrame(
+            Duration.seconds(2),
+            e -> errorText.setVisible(false)
+        ));
+        timeline.setCycleCount(1);
+        timeline.play();
+    }
         
 }
