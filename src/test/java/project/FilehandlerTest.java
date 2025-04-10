@@ -15,7 +15,7 @@ public class FilehandlerTest {
 
     @BeforeEach
     void setUp() {
-        board = new Board(new MockController());
+        board = new Board();
         filehandler = new Filehandler(board);
         // Wanna remove the random saves.json file that is created here.
         if (filehandler.getFile().exists()) {  

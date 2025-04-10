@@ -14,7 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class GOLController { // A little thick because of the need to draw the UI continuously. All functionality for the model resides in Board.java though. Who would have thought that a dynamic game would need some lines even in the controller.
+public class GOLController implements GridListener { // A little thick because of the need to draw the UI continuously. All functionality for the model resides in Board.java though. Who would have thought that a dynamic game would need some lines even in the controller.
     private Board board;
     
     @FXML private GridPane gridPane;
@@ -37,7 +37,8 @@ public class GOLController { // A little thick because of the need to draw the U
   
     public void initialize() throws IOException { // Basicly the constructor. Initializing the board object in order to bind the app to the board methods
         System.out.println("Initializing GOLController...");
-        this.board = new Board(this);
+        this.board = new Board();
+        this.board.addGridListener(this); // Adding this as an observer of the Board object in line with the Observable-Observet technique
         System.out.println("Board initialized successfully.");
         System.out.println("FileHandling initialized successfully.");
         drawBoard(); // Draws an empty grid
@@ -56,6 +57,12 @@ public class GOLController { // A little thick because of the need to draw the U
     @FXML
     private void handleClear() {
         board.clear();
+        drawBoard();
+    }
+
+    // The method from the GridListener interface. Avoids that the Controller and the model is intertwined.
+    @Override 
+    public void gridChanged() {
         drawBoard();
     }
 

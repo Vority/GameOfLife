@@ -1,6 +1,7 @@
 package project;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.lang.Math;
 
 import javafx.animation.Animation;
@@ -15,16 +16,15 @@ public class Board implements BoardInterface {
     private int living; // The amount of current living cells
     private int stun = 150; // Time delay between iterations in ms
     private Timeline gameLoop; // Timeline object -> continually executing stuff through iterations / cycles (as long as its running)
-    private GOLController controller; // Middleman between the game logic (this) and the FXML. Relation is here because the drawBoard function must be called from here
     private Filehandler files; // Handling saves and uploads from a JSON file
+    private List<GridListener> listeners = new ArrayList<>(); // List of gridListeners that will call drawBoard() in the controller when the grid is changed. Really only ever one listener but you know..
 
     // initialize the board object
-    public Board(GOLController controller) { 
+    public Board() { 
         System.out.println("Initializing board..!");
         this.iterations = 0;
         this.living = 0;
         this.grid = new ArrayList<>(); 
-        this.controller = controller;
         this.files = new Filehandler(this);
 
         // Adding entities to every position of the grid
@@ -37,8 +37,18 @@ public class Board implements BoardInterface {
         }
 
         // the timeline object should draw the board as well as call nextIteration every cycle (stun = 150ms)
-        gameLoop = new Timeline(new KeyFrame(Duration.millis(stun), e -> {nextIteration(); controller.drawBoard();}));
+        gameLoop = new Timeline(new KeyFrame(Duration.millis(stun), e -> {nextIteration(); notifyGridChanged();}));
         gameLoop.setCycleCount(Timeline.INDEFINITE);
+    }
+
+    public void addGridListener(GridListener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyGridChanged() {
+        for (GridListener listener : listeners) {
+            listener.gridChanged();
+        }
     }
 
     @Override
@@ -87,7 +97,7 @@ public class Board implements BoardInterface {
         // delegated from Filehandler (to update the grid and draw it to the application)
         this.grid = upload;
         System.out.println(this.getGrid()); 
-        controller.drawBoard();
+        notifyGridChanged();
     } 
 
     @Override

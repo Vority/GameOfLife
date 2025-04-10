@@ -15,8 +15,7 @@ public class BoardTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        GOLController controller = new MockController();
-        testBoard = new Board(controller);
+        testBoard = new Board();
     }
 
     @Test
