@@ -41,11 +41,13 @@ public class Board implements BoardInterface {
         gameLoop.setCycleCount(Timeline.INDEFINITE);
     }
 
-    public void addGridListener(GridListener listener) {
-        listeners.add(listener);
+    // Method to add a listener to the Board through the list "listeners"
+    public void addGridListener(GridListener listener) { 
+        listeners.add(listener); // used by the controller to listen without board needing to know.
     }
 
-    private void notifyGridChanged() {
+    // Iterating throught the list of listeners and telling them all that there has been a change.
+    private void notifyGridChanged() { 
         for (GridListener listener : listeners) {
             listener.gridChanged();
         }
@@ -105,7 +107,7 @@ public class Board implements BoardInterface {
             }
         }
         System.out.println(this.getGrid()); 
-        notifyGridChanged();
+        notifyGridChanged(); // telling Controller about the ghange
     } 
 
     @Override
@@ -126,6 +128,7 @@ public class Board implements BoardInterface {
         this.iterations = 0;
         stopGameLoop(); 
     }
+
     @Override
     public void startGameLoop() { 
         // Error handling: only doing .play() if its not already running.
@@ -133,6 +136,7 @@ public class Board implements BoardInterface {
             gameLoop.play(); // play -> status is running and nextIteration will be called every 150ms.
         }
     }
+
     @Override
     public void stopGameLoop() {
         // Also error handling here. .stop() could throw an exception if the gameLoop is not currently running when stop() is called.
@@ -142,18 +146,22 @@ public class Board implements BoardInterface {
             System.err.println("No current gameloop");
         }
     }
+
     @Override
     public int getLiving() {
         return living;
     }
+
     @Override
     public int getIterations() {
         return iterations;
     }
+
     @Override
     public ArrayList<ArrayList<Entity>> getGrid() {
         return grid;
     }
+    
     @Override
     public Filehandler getFiles() {
         return files;
