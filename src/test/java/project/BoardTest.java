@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,7 @@ public class BoardTest {
     Board testBoard;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         testBoard = new Board();
     }
 

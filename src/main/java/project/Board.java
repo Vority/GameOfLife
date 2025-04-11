@@ -95,7 +95,15 @@ public class Board implements BoardInterface {
     @Override
     public void uploadBoard(ArrayList<ArrayList<Entity>> upload) {
         // delegated from Filehandler (to update the grid and draw it to the application)
-        this.grid = upload;
+        clear(); // reset and get the right number of living cells
+        this.grid = upload; 
+        for (ArrayList<Entity> row : getGrid()) {
+            for (Entity entity : row) {
+                if (entity.isAlive()) {
+                    this.living++;
+                }
+            }
+        }
         System.out.println(this.getGrid()); 
         notifyGridChanged();
     } 

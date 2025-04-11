@@ -21,12 +21,14 @@ public class Filehandler {
     }
 
     // Method for saving the current grid of the board, with the argument name (identifier) in a Saves object.
-    public void save(String name) throws IOException {
+    public void save(String name) {
         // Checks if the name is null or empty. Throws exception if so. The controller will pick up on that and sends and errorText for the user.        
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("The name parameter cannot be null or empty.");
         }
-
+        if (name.contains("\"")) {
+            throw new IllegalArgumentException("You cannot use \" in your name.");
+        }
         // Unpacking the saves.json file into a list of Saves objects.
         List<Saves> savesList = loadSaves();
     
@@ -67,24 +69,29 @@ public class Filehandler {
         return false; // returns false if we have not found the save
     }
 
-    private void writeSaves(List<Saves> savesList) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        // Begins the list of the saves objects
-        writer.write("[\n");
+    private void writeSaves(List<Saves> savesList) {
+        try (FileWriter writer = new FileWriter(file)) {
+            // Begins the list of the saves objects
+            writer.write("[\n");
 
-        // For every Saves object in the savesList
-        for (int i = 0; i < savesList.size(); i++) {
-            Saves s = savesList.get(i);
-            // Write the saves object to JSON in proper JSON format (toJSON())
-            writer.write(s.toJSON()); 
-            // if it is not the final element in the list, add a comma to seperate the objects in the JSON file.
-            if (i < savesList.size() - 1) {
-                writer.write(",");
-            } // new line
-            writer.write("\n");
-        } // end the JSON array with a "]"
-        writer.write("]");
-        writer.close();
+            // For every Saves object in the savesList
+            for (int i = 0; i < savesList.size(); i++) {
+                Saves s = savesList.get(i);
+                // Write the saves object to JSON in proper JSON format (toJSON())
+                writer.write(s.toJSON()); 
+                // if it is not the final element in the list, add a comma to seperate the objects in the JSON file.
+                if (i < savesList.size() - 1) {
+                    writer.write(",");
+                } // new line
+                writer.write("\n");
+            } // end the JSON array with a "]"
+            writer.write("]");
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Error writing the list to the file: " + e.getMessage());
+        }
+        
+        
     }
 
     private List<Saves> loadSaves() {

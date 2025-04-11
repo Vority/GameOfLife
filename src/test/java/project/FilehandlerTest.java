@@ -3,7 +3,6 @@ package project;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,7 @@ public class FilehandlerTest {
 
 
     @Test
-    void testSave() throws IOException{
+    void testSave() {
         // Check that save() will work as intended
         // We change the grid from board slightly and then upload it
         board.editEntity(5,5);
@@ -55,7 +54,7 @@ public class FilehandlerTest {
     }
 
     @Test
-    void testUpload() throws IOException {
+    void testUpload() {
         // Checks normal functionality:
         //      First we edit two entities to be alive
         board.editEntity(4, 5);

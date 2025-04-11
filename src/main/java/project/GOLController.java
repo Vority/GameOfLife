@@ -1,6 +1,5 @@
 package project;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -35,7 +34,7 @@ public class GOLController implements GridListener { // A little thick because o
     @FXML private TextField loadText;
     @FXML private Text errorText;
   
-    public void initialize() throws IOException { // Basicly the constructor. Initializing the board object in order to bind the app to the board methods
+    public void initialize() { // Basicly the constructor. Initializing the board object in order to bind the app to the board methods
         System.out.println("Initializing GOLController...");
         this.board = new Board();
         this.board.addGridListener(this); // Adding this as an observer of the Board object in line with the Observable-Observet technique
@@ -117,13 +116,16 @@ public class GOLController implements GridListener { // A little thick because o
         board.stopGameLoop();
     }
     @FXML  // The text in the UI textfield has the argument for the Filehandler save method. 
-    private void save() throws IOException{
+    private void save() {
         try { // The save function in the FIlehandler class throws exceptions if the state isnt right. We want to catch these errors and give the feedback with UI.
             board.getFiles().save(saveText.getText());
             toMain();
-        } catch (IllegalArgumentException e) { // We check which exception we have (two possibilities) to give better feedback
+        } catch (IllegalArgumentException e) { // We check which exception we have (three possibilities) to give better feedback
             if (e.getMessage().equals("The name parameter cannot be null or empty.")) {
                 showTemporaryError("Name cannot be null or empty.");
+            }
+            else if (e.getMessage().equals("You cannot use \" in your name.")) {
+                showTemporaryError("You cannot use \" in your name.");
             }
             else {
                 showTemporaryError("Name is already used");
